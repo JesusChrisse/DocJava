@@ -1,15 +1,28 @@
 package model.version;
 
-public enum SelectorsVersions implements Selectors {
-	V7(new SelectorsV7()),
-	V8(new SelectorsV8()),
-	V9(new SelectorsV9()),
-	V10(new SelectorsV10());
+import java.io.IOException;
+
+public class SelectorsVersions implements Selectors {
 	
 	private Selectors selector;
 	
-	SelectorsVersions(Selectors pSelector) {
-		selector = pSelector;
+	public SelectorsVersions(int version) throws IOException {
+		switch (version) {
+		case 7:
+			selector = new SelectorsV7();
+			break;
+		case 8:
+			selector = new SelectorsV8();
+			break;
+		case 9:
+			selector = new SelectorsV9();
+			break;
+		case 10:
+			selector = new SelectorsV10();
+			break;
+		default:
+			throw new IOException("This version of JavaDoc is not supported.");
+		}
 	}
 
 	@Override

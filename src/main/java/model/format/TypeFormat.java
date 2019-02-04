@@ -2,8 +2,6 @@ package model.format;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +16,7 @@ import model.version.Selectors;
 class TypeFormat {
 	
 	private Selectors selectors;
+	private File source;
 	private Document doc;
 	private Set<String> importSet;
 	private String tabulation;
@@ -28,14 +27,15 @@ class TypeFormat {
 	private List<BlockFormat> listMethods;
 	private List<TypeFormat> listNestedClass;
 	
-	public TypeFormat(Document pDoc, Set<String> pImportSet, Selectors pSelectors) throws IOException, URISyntaxException {
-		this(pDoc, pImportSet, pSelectors, "");
+	public TypeFormat(File pSource, Document pDoc, Set<String> pImportSet, Selectors pSelectors) throws IOException {
+		this(pSource, pDoc, pImportSet, pSelectors, "");
 	}
 	
-	private TypeFormat(Document pDoc, Set<String> pImportSet, Selectors pSelectors, String pTabulation)
-			throws IOException, URISyntaxException {
+	private TypeFormat(File pSource, Document pDoc, Set<String> pImportSet, Selectors pSelectors, String pTabulation)
+			throws IOException {
 		
 		//TODO: constant
+		source = pSource;
 		doc = pDoc;
 		importSet = pImportSet;
 		selectors = pSelectors;
@@ -79,14 +79,14 @@ class TypeFormat {
 		return list;
 	}
 	
-	private List<TypeFormat> retrieveNestedClass() throws IOException, URISyntaxException {
+	private List<TypeFormat> retrieveNestedClass() throws IOException {
 		List<TypeFormat> list = new LinkedList<>();
 		// get list of link (balise <a>) to the file of the nested class
 		Elements links = doc.select(selectors.getNestedLinkSelector());
 		for (Element link : links) {
 			// NOTE: the File class must take a URI if not it won't work
 			// and Jsoup must have a baseUri to be able to have a absolute Path
-			list.add(new TypeFormat(Jsoup.parse(new File(new URI(link.absUrl("href"))), "UTF-8", doc.baseUri()), importSet, selectors, tabulation + "\t"));
+			list.add(new TypeFormat(source, Jsoup.parse(new File(source, link.attr("href")), "UTF-8", doc.baseUri()), importSet, selectors, tabulation + "\t"));
 		}
 		
 		return list;

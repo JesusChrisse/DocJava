@@ -1,10 +1,11 @@
 package model;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,32 +21,15 @@ public class DocJava {
 	private Selectors selectors;
 	private File source;
 	private File destination;
-	private SortedSet<File> filesSet;
-	private SortedSet<FileFormat> filesFormatSet;
+	private List<FileFormat> filesFormatSet;
 
 	public DocJava(File pSource, File pDestination, int version) throws IOException {
-		switch (version) {
-			case 7:
-				selectors = SelectorsVersions.V7;
-				break;
-			case 8:
-				selectors = SelectorsVersions.V8;
-				break;
-			case 9:
-				selectors = SelectorsVersions.V9;
-				break;
-			case 10:
-				selectors = SelectorsVersions.V10;
-				break;
-			default:
-				throw new IOException("This version of JavaDoc is not supported by DocJava.");
-		}
+		selectors = new SelectorsVersions(version);
 		
 		if (validationSource(pSource) && validationDestination(pDestination)) {
 			source = pSource;
 			destination = pDestination;
-			filesSet = new TreeSet<>();
-			filesFormatSet = new TreeSet<>();
+			filesFormatSet = new LinkedList<>();
 			
 			init();
 		}
@@ -54,6 +38,8 @@ public class DocJava {
 	private boolean validationSource(File pSource) throws IOException {
 		if (!pSource.exists())
 			throw new IOException("The source must exist.");
+		if (!pSource.isDirectory() && !pSource.isFile())
+			throw new IOException("The source must be a file or a directory.");
 		if (!pSource.canRead())
 			throw new IOException("You do not have sufficient permissions to read the specified source. Check your file permissions.");
 		return true;
@@ -71,12 +57,14 @@ public class DocJava {
 	
 	private void init() throws IOException {
 		if (source.isDirectory())
-			convertAllFiles();
+			formatAllFiles();
 		else
-			convertSingleFile(source);
+			formatSingleFile();
+		
+		writeFiles();
 	}
 	
-	private void convertAllFiles() throws IOException {
+	private void formatAllFiles() throws IOException {
 		File allClass = new File(source, selectors.getFileAllClassName());
 		if (!allClass.exists()) {
 			allClass = new File(source, selectors.getFileAllClassFrameName());
@@ -85,16 +73,41 @@ public class DocJava {
 			}
 		}
 		
-		Document doc = Jsoup.parse(allClass, "UTF-8", Paths.get(allClass.getParent()).toUri().toString());
-		Elements eles = doc.select(selectors.getAllClassSelector());
-		for (Element element : eles) {
-//			element. attribut href
+		for (String fileName : getAllFilesName(allClass)) {
+			filesFormatSet.add(new FileFormat(new File(source, fileName), selectors));
 		}
-			
+		
 	}
 	
-	private void convertSingleFile(File file) {
-		
+	private List<String> getAllFilesName(File allClassFile) throws IOException {
+		List<String> list = new LinkedList<>();
+		Document doc = Jsoup.parse(allClassFile, "UTF-8", Paths.get(allClassFile.getParent()).toUri().toString());
+		Elements eles = doc.select(selectors.getAllClassSelector());
+		for (Element element : eles) {
+			list.add(element.attr("href"));
+		}
+		return list;
+	}
+	
+	private void formatSingleFile() throws IOException {
+		filesFormatSet.add(new FileFormat(source, selectors));
+	}
+	
+	private void writeFiles() throws IOException {
+		for (FileFormat fileFormat : filesFormatSet) {
+			File file = new File(destination, fileFormat.getPackagePath() + "/" + fileFormat.getFileName());
+			
+			if (!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs(); //TODO: add check if doesn't work
+			}
+			
+			file.createNewFile(); //TODO: add check if doesn't work
+			
+			FileWriter writer = new FileWriter(file);
+			writer.write(fileFormat.toString());
+			writer.flush();
+			writer.close();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -104,9 +117,17 @@ public class DocJava {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		File a = new File("E:\\workspace\\DocJava\\src\\main\\resources\\docTest");
-		File b = new File(a, "allclasses-frame.html");
+		File sc = new File("E:\\workspace\\DocJava\\src\\main\\resources\\docTest");
+		File dt = new File("E:\\workspace\\DocJava\\src\\main\\resources\\destinationTest");
+//		
+//		System.out.println(a.getName());
 		
-		System.out.println(a.getName());
+		try {
+			DocJava dj = new DocJava(sc, dt, 8);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

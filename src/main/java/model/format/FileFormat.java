@@ -2,7 +2,6 @@ package model.format;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -13,20 +12,22 @@ import org.jsoup.nodes.Element;
 
 import model.version.Selectors;
 
-public class FileFormat implements Comparable<FileFormat> {
+public class FileFormat {
 	
 	private Selectors selectors;
 	private Document doc;
 	private String classPackage;
+	private String fileName;
 	private SortedSet<String> importSet;
-	private TypeFormat typeBlock;
+	private TypeFormat typeFormat;
 	
-	public FileFormat(File pFile, Selectors pSelectors) throws IOException, URISyntaxException {
+	public FileFormat(File pFile, Selectors pSelectors) throws IOException {
 		selectors = pSelectors;
+		fileName = pFile.getName().replaceFirst(".html$", ".java");
 		importSet = new TreeSet<>();
 		doc = Jsoup.parse(pFile, "UTF-8", Paths.get(pFile.getParent()).toUri().toString());
 		classPackage = retrievePackage();
-		typeBlock = new TypeFormat(doc, importSet, selectors);
+		typeFormat = new TypeFormat(pFile.getParentFile(), doc, importSet, selectors);
 	}
 	
 	private String retrievePackage() {
@@ -49,20 +50,14 @@ public class FileFormat implements Comparable<FileFormat> {
 			fileInfo += "import " + string + ";" + Util.LINE_BREAK;
 		}
 		
-		return fileInfo + Util.LINE_BREAK + typeBlock.toString();
+		return fileInfo + Util.LINE_BREAK + typeFormat.toString();
 	}
 	
-	public String getPackage() {
-		return classPackage;
+	public String getPackagePath() {
+		return (classPackage == null)? "" : classPackage.replaceAll("\\.", "/");
 	}
-
-	@Override
-	public int compareTo(FileFormat o) {
-		if (classPackage == null)
-			return -1;
-		else if (o.getPackage() == null)
-			return 1;
-		else
-			return classPackage.compareTo(o.getPackage());
+	
+	public String getFileName() {
+		return fileName;
 	}
 }
