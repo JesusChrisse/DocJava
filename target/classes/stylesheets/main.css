@@ -1,0 +1,96 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+.subroot {
+	-fx-padding: 25px;
+}
+
+/* ****** HEADER START ****** */
+.header {
+	-fx-pref-height: 40;
+	-fx-min-height: 40;
+	-fx-max-height: 40;
+	-fx-padding: 0 0 10 0;
+}
+.header-label {
+	-fx-font-size: 25;
+	-fx-font-weight: bold;
+	-fx-pref-height: 40;
+	-fx-min-height: 40;
+	-fx-max-height: 40;
+	-fx-pref-width: 300;
+	-fx-min-width: 300;
+	-fx-max-width: 300;
+}
+/* ****** HEADER END ****** */
+
+/* ****** MAIN START ****** */
+.main {
+	-fx-max-height: 180;
+	-fx-min-height: 180;
+	-fx-pref-height: 180;
+	-fx-spacing: 10;
+	-fx-padding: 10 0 10 0;
+}
+
+.box-input {
+	-fx-max-height: 60;
+	-fx-alignment: center-left;
+}
+.box-input-row {
+	-fx-max-height: 30;
+	-fx-alignment: center-left;
+}
+
+.box-input > .label-V {
+	-fx-pref-width: 140;
+	-fx-min-width: 140;
+	-fx-max-height: 140;
+	-fx-pref-height: 20;
+}
+
+.box-input > .label-H {
+	-fx-pref-width: 110;
+	-fx-min-width: 110;
+	-fx-max-height: 110;
+	-fx-pref-height: 20;
+}
+/* ****** MAIN END ****** */
+
+/* ****** FOOTER START ****** */
+.footer {
+	-fx-max-height: 130;
+	-fx-min-height: 130;
+	-fx-pref-height: 130;
+	-fx-spacing: 10;
+	-fx-padding: 10 0 0 0;
+	-fx-alignment: center;
+}
+
+.progress-row {
+	-fx-pref-width: 100%;
+	-fx-padding: 5 0 5 0;
+	-fx-alignment: center-left;
+}
+.progress-description, .progress-label, .progress-bar {
+	-fx-pref-width: 500;
+	-fx-min-width: 500;
+	-fx-max-width: 500;
+}
+.progress-label, .progress-bar {
+	-fx-pref-height: 20;
+	-fx-min-height: 20;
+	-fx-max-height: 20;
+}
+
+.progress-indicator {
+	-fx-pref-width: 40;
+	-fx-min-width: 40;
+	-fx-max-width: 40;
+	-fx-pref-height: 40;
+	-fx-min-height: 40;
+	-fx-max-height: 40;
+	
+}
+
+
+/* ****** FOOTER END ****** */
